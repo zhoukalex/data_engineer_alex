@@ -44,10 +44,10 @@ Steps to run:
 Try to follow ETL best practices for your example code. Good habits that we like to see might include:
 ## Making your tasks modular and easy to iterate on or modify. Adding a new task into the pipeline shouldn't break the rest of the ETL flow.
 - Alex: This design focused on making a modular design for the ETL pipeline. 
-    -- machina_raw table containing unprocessed log data enables historical record keeping in cheap s3 storage. 
-    -- machina_cleaned table aims to be like a 'fact' table that transposes the machina_raw data. 
-    -- Machina_model_v1 table is where new feature engineering can take place, business rules implemented, and be used as a framework for scientists to build newer models in the future. 
-    -- machina_run_uuid_stats table can be used for reports and data visuals by users on a specific model table.
+- machina_raw table containing unprocessed log data enables historical record keeping in cheap s3 storage. 
+- machina_cleaned table aims to be like a 'fact' table that transposes the machina_raw data. 
+- Machina_model_v1 table is where new feature engineering can take place, business rules implemented, and be used as a framework for scientists to build newer models in the future. 
+- machina_run_uuid_stats table can be used for reports and data visuals by users on a specific model table.
 
 ## Enforce datatypes and include exception handling and data cleaning measures for dealing with errors.
 - Alex: Datatypes and null value exceptions are handled through schema specifications per table. 
@@ -55,19 +55,19 @@ Machina_model_v1 processing is where business rules can be added for acceptance 
 
 ## Consider a design for your workflow that would make it easy to modify or update data as new features get added. If you put all of the data in one location, how easy would it be to udpate or modify. If you spread your data across multiple locations, how would updates or modifications propagate to all those locations? 
 - Alex: New log parquet files will be saved into a S3 bucket overtime.
--- Log Parquet data in S3 needs to be heavily locked down to limited write access use cases. A) Writing new parquet data files B) Backfilling any parquet files with issues. 
--- machina_raw is a datalake live table that is incrementally built using the parquet files in s3. 
--- machina_cleaned and/or Machina_model_v1 can serve as baseline datasets for those who need processed log data. 
--- These two data sets provide flexibility to add new dimensions, and/or business logic overtime. Data quality is not at risk to change over time since records are preserved in machina_raw.
+- Log Parquet data in S3 needs to be heavily locked down to limited write access use cases. A) Writing new parquet data files B) Backfilling any parquet files with issues. 
+- machina_raw is a datalake live table that is incrementally built using the parquet files in s3. 
+- machina_cleaned and/or Machina_model_v1 can serve as baseline datasets for those who need processed log data. 
+- These two data sets provide flexibility to add new dimensions, and/or business logic overtime. Data quality is not at risk to change over time since records are preserved in machina_raw.
 
 ## Consider processing speed and use parallel processing for independent tasks when possible. Which parts of your pipeline can be parallelized? Which have to be done sequentially?
--- machina_raw is built sequentially as new parquet files arrive to s3. 
--- The next 2 steps (machina_cleaned, Machina_model_v1) are currently done sequentially, but they could be parallelized if each table was sequentially built by run_uuid partition. 
--- machina_run_uuid_stats has to be sequential once all data is available in the upstream table. 
+- machina_raw is built sequentially as new parquet files arrive to s3. 
+- The next 2 steps (machina_cleaned, Machina_model_v1) are currently done sequentially, but they could be parallelized if each table was sequentially built by run_uuid partition. 
+- machina_run_uuid_stats has to be sequential once all data is available in the upstream table. 
 
 ## Save data in formats that are easily extensible and convneint to query.
 - Data is stored in four tables. 
--- See 'Ad Hoc Pyspark SQL Request Using New Tables.ipynb' for how SQL in databricks can be executed once this data pipeline is ran. 
+- See 'Ad Hoc Pyspark SQL Request Using New Tables.ipynb' for how SQL in databricks can be executed once this data pipeline is ran. 
 
 # Closing Thoughts & Remaining Opportunities
 - Alex: I had to learn databricks from scratch & many new spark concepts to build this pipeline. Given time using this foundational pipeline, databricks serves as an amazing tool to build out a feature library for scientists/engineers to use. 
