@@ -59,7 +59,7 @@ Machina_model_v1 processing is where business rules can be added for acceptance 
 - Log Parquet data in S3 needs to be heavily locked down to limited write access use cases. A) Writing new parquet data files B) Backfilling any parquet files with issues. 
 - machina_raw is a datalake live table that is incrementally built using the parquet files in s3. 
 - machina_cleaned and/or Machina_model_v1 can serve as baseline datasets for those who need processed log data. 
-- These two data sets provide flexibility to add new dimensions, and/or business logic overtime. Data quality is not at risk to change over time since records are preserved in machina_raw.
+- These two data sets provide flexibility to add new dimensions, and/or business logic overtime. Historical log data is not at risk to change over time since records are preserved in machina_raw. 
 
 ## Consider processing speed and use parallel processing for independent tasks when possible. Which parts of your pipeline can be parallelized? Which have to be done sequentially?
 - machina_raw is built sequentially as new parquet files arrive to s3. 
