@@ -28,7 +28,7 @@ Total velocity, acceleration, force values have placeholders but are missing as 
 - Task 4: machina_run_uuid_stats live table is created. 
 This table calculates various runtime stats per run_uuid using Machina_model_v1. 
 
-# Steps to run Databricks pipeline using S3 Credentials and/or Sample Parquet in S3
+# 2. Steps to run Databricks pipeline using S3 Credentials and/or Sample Parquet in S3
 Steps to run: 
 1. Open databricks and start a cluster. 
 2. Click the Data icon and then click the Create Table button. Keep in mind that you need to have a cluster running before creating a table.
@@ -40,7 +40,7 @@ Steps to run:
     Use the pipeline settings in 'pipeline_settings.jpg' or 'pipeline_settings_json.txt', but modify the notebook libraries to reference your location for the wiki_to_machine_pipeline.ipnyb file.
 6. Click into the 'machina_pipeline' just created and click 'start' on the top right to create the set of 4 tables. 
 
-# Alex comments regarding: Tips & Advice
+# 3. Alex comments regarding: Tips & Advice
 Try to follow ETL best practices for your example code. Good habits that we like to see might include:
 ## Making your tasks modular and easy to iterate on or modify. Adding a new task into the pipeline shouldn't break the rest of the ETL flow.
 - Alex: This design focused on making a modular design for the ETL pipeline. 
