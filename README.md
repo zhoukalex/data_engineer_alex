@@ -1,5 +1,85 @@
 # Data Engineer Homework
 
+# 1. Overview of the ETL Pipeline
+The focus of this ETL pipeline design was to build a modular focused end-to-end ML Ops platform on Databricks & AWS S3. 
+AWS S3 is used to store the 'sample.parquet' file in its raw form, and remaining ETL is done on Databricks. 
+This ETL pipeline design breaks down 4 tasks: 
+    - Task 1: A Live Table called 'machina_raw' is created using the schema of the original 'sample.parquet' file. 
+    This table will be incrementally built as new files are dropped in the S3 bucket using the established schema of the original file. 
+    This table does NOT have data processing steps as it exists to give Databricks a representation of the logged sensor data for future use cases. 
+
+    - Task 2: A live table called 'machina_cleaned' is created. 
+    The goal of this table is to serve as a baseline data set for post-processing steps in the next task. 
+    Log data is transformed to have the field + robot_id combinations as new columns for the ML dataset. 
+    Duplicates are dropped, and rows processed into this table require run_uuid IS NOT NULL AND timestamp IS NOT NULL.
+    This step does NOT handle NULL values or resample the time series into aggregated time windows. 
+
+    - Task 3: Machina_model_v1 live table is created. 
+    Using machina_cleaned data, this step introduces the various data processing steps to create a non-null data set with engineered features. 
+    For each run_uuid, the timeseries is resampled to 10 milliseconds (ms). 
+        10 ms was chosen as ~98% of load sensor data is logged every 10 ms and this was communicated as the Y variables for the ML use-case (12 ms for the encoder sensor).  
+        Each encoder/loader column value is aggregated within a 10 ms window, and imputed as a mean. 
+        For any values still missing and not captured in a 10 ms window, 'ffill' is used. If a value in the current row is missing, ffill grabs the prior row value. 
+            bfill is used to populate any missing values in the FIRST row for any run_uuid partition. 
+    Velocity, Acceleration values were added. 
+    Total velocity, acceleration, force values have placeholders but are missing as I am missing the domain knowledge for the right calculation for this. 
+
+    - Task 4: machina_run_uuid_stats live table is created. 
+    This table calculates various runtime stats per run_uuid using Machina_model_v1. 
+
+# 2.1 Preprocess and Clean
+Steps to run: 
+1. Open databricks and start a cluster. 
+2. Click the Data icon and then click the Create Table button. Keep in mind that you need to have a cluster running before creating a table.
+3. Click Drop files to upload, or click to browse and upload the csv file downloaded from AWS called "new_user_credentials.csv". 
+    Note: if there is issue in accessing s3, see below guide to drop the sample.parquet file into a S3 bucket called 'machina-stg-parquet' and enable databricks to have access by exporting credentials.
+    See: https://medium.com/grabngoinfo/databricks-mount-to-aws-s3-and-import-data-4100621a63fd
+4. Upload the 'wiki_to_machine_pipeline.ipnyb' into the Databricks cluster.
+5. In data bricks, click 'workflows' -> 'delta live tables' -> 'create pipeline'. 
+    Use the pipeline settings in 'pipeline_settings.jpg' or 'pipeline_settings_json.txt', but modify the notebook libraries to reference your location for the wiki_to_machine_pipeline.ipnyb file.
+6. Click into the 'machina_pipeline' just created and click 'start' on the top right to create the set of 4 tables. 
+
+# Alex comments regarding: Tips & Advice
+Try to follow ETL best practices for your example code. Good habits that we like to see might include:
+- Making your tasks modular and easy to iterate on or modify. Adding a new task into the pipeline shouldn't break the rest of the ETL flow.
+-- Alex: This design focused on making a modular design for the ETL pipeline. 
+    -- machina_raw table containing unprocessed log data enables historical record keeping in cheap s3 storage. 
+    -- machina_cleaned table aims to be like a 'fact' table that transposes the machina_raw data. 
+    -- Machina_model_v1 table is where new feature engineering can take place, business rules implemented, and be used as a framework for scientists to build newer models in the future. 
+    -- machina_run_uuid_stats table can be used for reports and data visuals by users on a specific model table.
+
+- Enforce datatypes and include exception handling and data cleaning measures for dealing with errors.
+-- Alex: Datatypes and null value exceptions are handled through schema specifications per table. 
+Machina_model_v1 processing is where business rules can be added for acceptance criteria of availability of various robot encoder/loader data per run_uuid. 
+
+- Consider a design for your workflow that would make it easy to modify or update data as new features get added. If you put all of the data in one location, how easy would it be to udpate or modify. If you spread your data across multiple locations, how would updates or modifications propagate to all those locations? 
+-- New log parquet files will be saved into a S3 bucket overtime.
+-- Log Parquet data in S3 needs to be heavily locked down to limited write access use cases. A) Writing new parquet data files B) Backfilling any parquet files with issues. 
+-- machina_raw is a datalake live table that is incrementally built using the parquet files in s3. 
+-- machina_cleaned and/or Machina_model_v1 can serve as baseline datasets for those who need processed log data. 
+-- These two data sets provide flexibility to add new dimensions, and/or business logic overtime. Data quality is not at risk to change over time since records are preserved in machina_raw.
+
+- Consider processing speed and use parallel processing for independent tasks when possible. Which parts of your pipeline can be parallelized? Which have to be done sequentially?
+-- machina_raw is built sequentially as new parquet files arrive to s3. 
+-- The next 2 steps (machina_cleaned, Machina_model_v1) are currently done sequentially, but they could be parallelized if each table was sequentially built by run_uuid partition. 
+-- machina_run_uuid_stats has to be sequential once all data is available in the upstream table. 
+
+- Save data in formats that are easily extensible and convneint to query.
+-- Data is stored in four tables. 
+-- See 'Ad Hoc Pyspark SQL Request Using New Tables.ipynb' for how SQL in databricks can be executed once this data pipeline is ran. 
+
+import urllib
+from pyspark.sql.functions import *
+from pyspark.sql.types import *
+#from tempo import *
+#import dlt
+import boto3
+from botocore.config import Config
+
+df = spark.sql("""SELECT * FROM machina.machina_model_v1""") # machina_cleaned # machina_raw # machina_model_v1 # machina_run_uuid_stats
+#display(df)
+
+
 # Objective
 The goal for this assignment is to design a simple ETL process that converts a sample of raw timeseries data into a collection of useful datasets and statistics relevant for work we do at Machina Labs. You can use whatever tools you like but make sure to include instructions in your submission for how your submission should be used and what dependencies it has. For example, if you choose to use python + pandas for data processing please include a `requirements.txt` file (in the case of pip) or `environment.yml` file (in the case of conda) as well as instructions for how we should run your solution code. 
 
