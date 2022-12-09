@@ -63,7 +63,7 @@ Machina_model_v1 processing is where business rules can be added for acceptance 
 
 ## Consider processing speed and use parallel processing for independent tasks when possible. Which parts of your pipeline can be parallelized? Which have to be done sequentially?
 - machina_raw is built sequentially as new parquet files arrive to s3. 
-- The next 2 steps (machina_cleaned, Machina_model_v1) are currently done sequentially, but they could be parallelized if each table was sequentially built by run_uuid partition. 
+- The next 2 steps (machina_cleaned, Machina_model_v1) are currently done sequentially, but they could be parallelized if each table was incrementally built by run_uuid partition. 
 - machina_run_uuid_stats has to be sequential once all data is available in the upstream table. 
 
 ## Save data in formats that are easily extensible and convneint to query.
