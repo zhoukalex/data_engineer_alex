@@ -1,33 +1,34 @@
 # Data Engineer Homework
 
 # 1. Overview of the ETL Pipeline
-The focus of this ETL pipeline design was to build a modular focused end-to-end ML Ops platform on Databricks & AWS S3. 
+- The focus of this ETL pipeline design was to build a modular focused end-to-end ML Ops platform on Databricks & AWS S3. 
 AWS S3 is used to store the 'sample.parquet' file in its raw form, and remaining ETL is done on Databricks. 
 This ETL pipeline design breaks down 4 tasks: 
-    - Task 1: A Live Table called 'machina_raw' is created using the schema of the original 'sample.parquet' file. 
-    This table will be incrementally built as new files are dropped in the S3 bucket using the established schema of the original file. 
-    This table does NOT have data processing steps as it exists to give Databricks a representation of the logged sensor data for future use cases. 
 
-    - Task 2: A live table called 'machina_cleaned' is created. 
-    The goal of this table is to serve as a baseline data set for post-processing steps in the next task. 
-    Log data is transformed to have the field + robot_id combinations as new columns for the ML dataset. 
-    Duplicates are dropped, and rows processed into this table require run_uuid IS NOT NULL AND timestamp IS NOT NULL.
-    This step does NOT handle NULL values or resample the time series into aggregated time windows. 
+- Task 1: A Live Table called 'machina_raw' is created using the schema of the original 'sample.parquet' file. 
+This table will be incrementally built as new files are dropped in the S3 bucket using the established schema of the original file. 
+This table does NOT have data processing steps as it exists to give Databricks a representation of the logged sensor data for future use cases. 
 
-    - Task 3: Machina_model_v1 live table is created. 
-    Using machina_cleaned data, this step introduces the various data processing steps to create a non-null data set with engineered features. 
-    For each run_uuid, the timeseries is resampled to 10 milliseconds (ms). 
-        10 ms was chosen as ~98% of load sensor data is logged every 10 ms and this was communicated as the Y variables for the ML use-case (12 ms for the encoder sensor).  
-        Each encoder/loader column value is aggregated within a 10 ms window, and imputed as a mean. 
-        For any values still missing and not captured in a 10 ms window, 'ffill' is used. If a value in the current row is missing, ffill grabs the prior row value. 
-            bfill is used to populate any missing values in the FIRST row for any run_uuid partition. 
-    Velocity, Acceleration values were added. 
-    Total velocity, acceleration, force values have placeholders but are missing as I am missing the domain knowledge for the right calculation for this. 
+- Task 2: A live table called 'machina_cleaned' is created. 
+The goal of this table is to serve as a baseline data set for post-processing steps in the next task. 
+Log data is transformed to have the field + robot_id combinations as new columns for the ML dataset. 
+Duplicates are dropped, and rows processed into this table require run_uuid IS NOT NULL AND timestamp IS NOT NULL.
+This step does NOT handle NULL values or resample the time series into aggregated time windows. 
 
-    - Task 4: machina_run_uuid_stats live table is created. 
-    This table calculates various runtime stats per run_uuid using Machina_model_v1. 
+- Task 3: Machina_model_v1 live table is created. 
+Using machina_cleaned data, this step introduces the various data processing steps to create a non-null data set with engineered features. 
+For each run_uuid, the timeseries is resampled to 10 milliseconds (ms). 
+    10 ms was chosen as ~98% of load sensor data is logged every 10 ms and this was communicated as the Y variables for the ML use-case (12 ms for the encoder sensor).  
+    Each encoder/loader column value is aggregated within a 10 ms window, and imputed as a mean. 
+    For any values still missing and not captured in a 10 ms window, 'ffill' is used. If a value in the current row is missing, ffill grabs the prior row value. 
+        bfill is used to populate any missing values in the FIRST row for any run_uuid partition. 
+Velocity, Acceleration values were added. 
+Total velocity, acceleration, force values have placeholders but are missing as I am missing the domain knowledge for the right calculation for this. 
 
-# 2.1 Preprocess and Clean
+- Task 4: machina_run_uuid_stats live table is created. 
+This table calculates various runtime stats per run_uuid using Machina_model_v1. 
+
+# Steps to run Databricks pipeline using S3 Credentials and/or Sample Parquet in S3
 Steps to run: 
 1. Open databricks and start a cluster. 
 2. Click the Data icon and then click the Create Table button. Keep in mind that you need to have a cluster running before creating a table.
@@ -68,16 +69,14 @@ Machina_model_v1 processing is where business rules can be added for acceptance 
 -- Data is stored in four tables. 
 -- See 'Ad Hoc Pyspark SQL Request Using New Tables.ipynb' for how SQL in databricks can be executed once this data pipeline is ran. 
 
-import urllib
-from pyspark.sql.functions import *
-from pyspark.sql.types import *
-#from tempo import *
-#import dlt
-import boto3
-from botocore.config import Config
-
-df = spark.sql("""SELECT * FROM machina.machina_model_v1""") # machina_cleaned # machina_raw # machina_model_v1 # machina_run_uuid_stats
-#display(df)
+import urllib  
+from pyspark.sql.functions import *  
+from pyspark.sql.types import *  
+import boto3  
+from botocore.config import Config  
+  
+df = spark.sql("""SELECT * FROM machina.machina_model_v1""") # machina_cleaned # machina_raw # machina_model_v1 # machina_run_uuid_stats  
+#display(df)  
 
 
 # Objective
