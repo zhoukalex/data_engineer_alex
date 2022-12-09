@@ -5,6 +5,8 @@
 AWS S3 is used to store the 'sample.parquet' file in its raw form, and remaining ETL is done on Databricks. 
 This ETL pipeline design breaks down 4 tasks: 
 
+<img src="/data_engineer_alex/submission/Pipeline_View.jpg" alt="Alt text" title="Pipeline View">
+
 - Task 1: A Live Table called 'machina_raw' is created using the schema of the original 'sample.parquet' file. 
 This table will be incrementally built as new files are dropped in the S3 bucket using the established schema of the original file. 
 This table does NOT have data processing steps as it exists to give Databricks a representation of the logged sensor data for future use cases. 
