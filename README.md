@@ -64,8 +64,9 @@ Machina_model_v1 processing is where business rules can be added for acceptance 
 - These two data sets provide flexibility to add new dimensions, and/or business logic overtime. Historical log data is not at risk to change over time since records are preserved in machina_raw. 
 
 ## Consider processing speed and use parallel processing for independent tasks when possible. Which parts of your pipeline can be parallelized? Which have to be done sequentially?
+- The entire ETL workflow uses Pyspark as the parallel and distributed engine for data processing.
 - machina_raw is built sequentially as new parquet files arrive to s3. 
-- The next 2 steps (machina_cleaned, Machina_model_v1) are currently done sequentially, but they could be parallelized if each table was incrementally built by run_uuid partition. 
+- The next 2 steps (machina_cleaned, Machina_model_v1) are currently done sequentially, but further optimization is possible if each table was incrementally built by processing each run_uuid partition. 
 - machina_run_uuid_stats has to be sequential once all data is available in the upstream table. 
 
 ## Save data in formats that are easily extensible and convneint to query.
