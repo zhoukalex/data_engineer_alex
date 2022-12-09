@@ -75,7 +75,7 @@ Machina_model_v1 processing is where business rules can be added for acceptance 
 - Databricks allows for raw data to be stored in cheap s3 storage. Data sets can be built in data lake tables using scalable compute resources where access can be quickly provided for various stakeholders. 
 The data could be accessed through Python or SQL accessible data sets for Scientists/Engineers, as well as summarized report tables/visuals/queries for management/analysts.
 - One set of features that could be added in the future would represent various differencing techniques (difference the series, log of the series, nth root of the series, etc.) for non-stationary column timeseries'. 
-Many ML models assume stationarity in the time series data, while I observed both trend & seasonality effects in some of the run_uuid data. 
+Many ML models assume stationarity in the time series data, and I observed both trend & seasonality effects in some of the run_uuid data causing non-stationarity. 
 
 import urllib  
 from pyspark.sql.functions import *  
