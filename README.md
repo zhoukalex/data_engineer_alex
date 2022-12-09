@@ -52,6 +52,7 @@ Try to follow ETL best practices for your example code. Good habits that we like
 ## Enforce datatypes and include exception handling and data cleaning measures for dealing with errors.
 - Alex: Datatypes and null value exceptions are handled through schema specifications per table. 
 Machina_model_v1 processing is where business rules can be added for acceptance criteria of availability of various robot encoder/loader data per run_uuid. 
+- Business rule example that requires domain knowledge: For a run_uuid, what if entire columns are missing like x_1? Or what if data is missing from a sensor halfway through a time series? What conditions indicate an issue with the log data collection itself (e.g. sensor issue or pipeline failure) that dictate a specific run_uuid data set get ignored from appending to the ML ready data set? 
 
 ## Consider a design for your workflow that would make it easy to modify or update data as new features get added. If you put all of the data in one location, how easy would it be to udpate or modify. If you spread your data across multiple locations, how would updates or modifications propagate to all those locations? 
 - Alex: New log parquet files will be saved into a S3 bucket overtime.
