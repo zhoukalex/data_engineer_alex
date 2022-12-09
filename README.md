@@ -44,7 +44,7 @@ Steps to run:
 Try to follow ETL best practices for your example code. Good habits that we like to see might include:
 ## Making your tasks modular and easy to iterate on or modify. Adding a new task into the pipeline shouldn't break the rest of the ETL flow.
 - Alex: This design focused on making a modular design for the ETL pipeline. 
-- machina_raw table containing unprocessed log data enables historical record keeping in cheap s3 storage. 
+- machina_raw table containing unprocessed log data that enables historical record keeping in cheap s3 storage. 
 - machina_cleaned table aims to be like a 'fact' table that transposes the machina_raw data. 
 - Machina_model_v1 table is where new feature engineering can take place, business rules implemented, and be used as a framework for scientists to build newer models in the future. 
 - machina_run_uuid_stats table can be used for reports and data visuals by users on a specific model table.
