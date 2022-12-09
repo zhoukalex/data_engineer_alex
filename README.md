@@ -79,10 +79,11 @@ Machina_model_v1 processing is where business rules can be added for acceptance 
     df = spark.sql("""SELECT * FROM machina.machina_model_v1""") # machina_cleaned # machina_raw # machina_model_v1 # machina_run_uuid_stats  
     #display(df)  
 
-# Closing Thoughts & Remaining Opportunities
+# 4. Closing Thoughts & Remaining Opportunities
 - Alex: I had to learn databricks from scratch & many new spark concepts to build this pipeline. Given time using this foundational pipeline, databricks serves as an efficient tool to build out an end-to-end data platform for the organization to use. 
 - Databricks allows for raw data to be stored in cheap s3 storage. Data sets can be built in data lake tables using scalable compute resources where access can be quickly provided for various stakeholders. 
 The data could be accessed through Python or SQL accessible data sets for Scientists/Engineers, as well as summarized report tables/visuals/queries for management/analysts.
+- A ML feature library can be built over time and quickly adopted in new ML pipelines
 - One set of features that could be added in the future would represent various differencing techniques (difference the series, log of the series, nth root of the series, etc.) for non-stationary column timeseries'. 
 Many ML models assume stationarity in the time series data, and I observed both trend & seasonality effects in some of the run_uuid data causing non-stationarity. 
 
