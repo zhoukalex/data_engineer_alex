@@ -60,25 +60,21 @@ Machina_model_v1 processing is where business rules can be added for acceptance 
 
 - Business rule needed for determining data completeness prior to processing data for Machina_model_v1.
 <img src="https://github.com/zhoukalex/data_engineer_alex/blob/main/submission/12405186538561671000.JPG" alt="Run ID View" title="RUUN_ID View">
-    - All data but fx_1 is missing. 
 
-
+- All data but fx_1 is missing. 
 
 <img src="https://github.com/zhoukalex/data_engineer_alex/blob/main/submission/6176976534744076300.JPG" alt="Run ID View" title="RUUN_ID View">
-    - Data available in all columns, except z_2 is null. 
-    - After 2/6th of the timeseries, y_2 becomes .003 flat. 
 
-
+- Data available in all columns, except z_2 is null. 
+- After 2/6th of the timeseries, y_2 becomes .003 flat. 
 
 <img src="https://github.com/zhoukalex/data_engineer_alex/blob/main/submission/7582293080991469600.JPG" alt="Run ID View" title="RUUN_ID View">
+
 - The only dataset with complete timeseries across all columns. 
 
-
-
 <img src="https://github.com/zhoukalex/data_engineer_alex/blob/main/submission/8910095844186656800.JPG" alt="Run ID View" title="RUUN_ID View">
+
 - Missing all force values.
-
-
 
 ## Consider a design for your workflow that would make it easy to modify or update data as new features get added. If you put all of the data in one location, how easy would it be to udpate or modify. If you spread your data across multiple locations, how would updates or modifications propagate to all those locations? 
 - Alex: New log parquet files will be saved into a S3 bucket overtime.
