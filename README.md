@@ -19,10 +19,11 @@ This step does NOT handle NULL values or resample the time series into aggregate
 
 - Task 3: Machina_model_v1 live table is created. 
 Using machina_cleaned data, this step introduces the various data processing steps to create a non-null data set with engineered features. 
-For each run_uuid, the timeseries is resampled to 10 milliseconds (ms). 
-    10 ms was chosen as ~98% of load sensor data is logged every 10 ms and this was communicated as the Y variables for the ML use-case (12 ms for the encoder sensor).  
-    Each encoder/loader column value is aggregated within a 10 ms window, and imputed as a mean. 
-    For any values still missing and not captured in a 10 ms window, 'ffill' is used. If a value in the current row is missing, ffill grabs the prior row value. 
+For each run_uuid, the timeseries is resampled to 1 milliseconds (ms). 
+    1 ms was chosen as this will retain any any outlier logged sensor values or force values that may be used to detect if a potential issue occured.
+    ~98% of load sensor data is logged every 10 ms and this was communicated as the Y variables for the ML use-case (12 ms for the encoder sensor).  
+    Each encoder/loader column value is aggregated within a 1 ms window, and imputed as a mean. 
+    For any values still missing and not captured in a 1 ms window, 'ffill' is used. If a value in the current row is missing, ffill grabs the prior row value. 
         bfill is used to populate any missing values in the FIRST row for any run_uuid partition. 
 Velocity, Acceleration values were added. 
 Total velocity, acceleration, force values have placeholders but are missing as I am missing the domain knowledge for the right calculation for this. 
@@ -55,6 +56,18 @@ Try to follow ETL best practices for your example code. Good habits that we like
 - Alex: Datatypes and null value exceptions are handled through schema specifications per table. 
 Machina_model_v1 processing is where business rules can be added for acceptance criteria of availability of various robot encoder/loader data per run_uuid. 
 - Business rule example that requires domain knowledge: For a run_uuid, what if entire columns are missing like x_1? Or what if data is missing from a sensor halfway through a time series? What conditions indicate an issue with the log data collection itself (e.g. sensor issue or pipeline failure) that dictate a specific run_uuid data set get ignored from appending to the ML ready data set? 
+
+<img src="https://github.com/zhoukalex/data_engineer_alex/blob/main/submission/12405186538561671000.JPG" alt="Run ID View" title="RUUN_ID View">
+-  
+
+<img src="https://github.com/zhoukalex/data_engineer_alex/blob/main/submission/6176976534744076300.JPG" alt="Run ID View" title="RUUN_ID View">
+- 
+
+<img src="https://github.com/zhoukalex/data_engineer_alex/blob/main/submission/7582293080991469600.JPG" alt="Run ID View" title="RUUN_ID View">
+- 
+
+<img src="https://github.com/zhoukalex/data_engineer_alex/blob/main/submission/8910095844186656800.JPG" alt="Run ID View" title="RUUN_ID View">
+- 
 
 ## Consider a design for your workflow that would make it easy to modify or update data as new features get added. If you put all of the data in one location, how easy would it be to udpate or modify. If you spread your data across multiple locations, how would updates or modifications propagate to all those locations? 
 - Alex: New log parquet files will be saved into a S3 bucket overtime.
