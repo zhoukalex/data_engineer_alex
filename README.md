@@ -64,6 +64,7 @@ Machina_model_v1 processing is where business rules can be added for acceptance 
 - All data but fx_1 is missing. 
 
 <img src="https://github.com/zhoukalex/data_engineer_alex/blob/main/submission/6176976534744076300.JPG" alt="Run ID View" title="RUUN_ID View">
+<img src="https://github.com/zhoukalex/data_engineer_alex/blob/main/submission/6176976534744076300_2.JPG" alt="Run ID View" title="RUUN_ID View">
 
 - Data available in all columns, except z_2 is null. 
 - After 2/6th of the timeseries, y_2 becomes .003 flat. 
